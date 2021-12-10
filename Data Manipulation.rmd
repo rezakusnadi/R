@@ -1,0 +1,74 @@
+```{r}
+library(readr)
+df_house_price = read.csv('D:/reza/dbimbing DATA SCIENCE BISMILLAH/Code/train.csv')
+View(df_house_price)
+```
+
+```{r}
+library(tidyverse)
+library(caret)
+```
+
+#1.Pilih kolom ID, Condition1, OverallCond, YearBuilt, dan FullBath yang mana GrLivArea nya = 1717 atau 2324, jelaskan fungsi apa yang akan
+digunakan dan kenapa?
+```{r}
+df_house_price %>%
+  select(Id,Condition1,OverallCond,YearBuilt,FullBath,GrLivArea) %>% 
+  filter(GrLivArea=='1717'|GrLivArea=='2324')
+```
+2.Pada tahun berapa yang paling banyak membangun rumah dimana GarageCond: Garage condition = Ex Excellent
+```{r}
+df_house_price %>%
+  filter(GarageCond=='Ex') %>% 
+  count(YearBuilt)
+```
+
+3.Rata-rata penjualan rumah tertinggi pada tahun berapa?
+```{r}
+df_house_price %>%
+  group_by(YrSold) %>% 
+  summarise(Rata_Rata_Penjualan=mean(SalePrice)) %>% 
+  arrange(desc(Rata_Rata_Penjualan)) 
+```
+
+4.Apakah YearBuilt dan YearRemodAdd di tahun yang sama mempunyai penjualan yang tinggi?
+```{r}
+df_house_price %>%
+  filter(YearBuilt==YearRemodAdd) %>%
+  select(YearBuilt,YearRemodAdd,SalePrice)
+```
+
+
+5.Buat kolom baru dengan nama Usia_Rumah setelah YearRemodeAdd
+```{r}
+df_house_price %>%
+  select(YearBuilt,YearRemodAdd) %>%
+  mutate(Usia_Rumah_sebelum_remodel = YearRemodAdd - YearBuilt)
+```
+
+6.Buatlah Feature Engineering dari kolom YearBuilt, OverallQual, YearRemodadd, YrSold, dan MoSold minimal 10 feature baru
+```{r}
+df_house_price %>%
+  select(YearBuilt,YearRemodAdd,OverallQual,MoSold,YrSold) %>%
+  filter(YearBuilt>=1970 & YearBuilt<=2010) %>% 
+  # distinct(YearBuilt) %>%
+  mutate(Usia_Rumah_remodel = YearRemodAdd - YearBuilt, .after = YearRemodAdd) %>% 
+  mutate(Ket_Qual = ifelse(OverallQual=='10','Very Excellent',
+                    ifelse(OverallQual=='9','Excellent',
+                    ifelse(OverallQual=='8','Very Good',
+                    ifelse(OverallQual=='7','Good',
+                    ifelse(OverallQual=='6','Above Average',
+                    ifelse(OverallQual=='5','Average',
+                    ifelse(OverallQual=='4','Below Average',
+                    ifelse(OverallQual=='3','Fair',
+                    ifelse(OverallQual=='2','Poor',
+                    ifelse(OverallQual=='1','Very Poor','no')))))))))),.after = OverallQual) %>%
+  mutate(Usia_Rumah_terjual = YrSold - YearBuilt, .after = YrSold) %>% 
+  unite(MoSold,YrSold,col='Sold',sep = '/')
+  # group_by(Sold) %>% 
+  # summarise(count_ = n()) %>%
+  # arrange(desc(count_))
+  
+
+```
+

@@ -1,0 +1,57 @@
+```{r}
+library(tidyverse)
+```
+
+```{r}
+library(readr)
+ames <- read_csv('D:/reza/dbimbing DATA SCIENCE/Code/train.csv')
+```
+
+```{r}
+glimpse(ames)
+```
+
+Gain & visualize 4 insights from the Ames housing dataset
+
+1. Count of one categorical feature
+```{r}
+ames %>%
+  count(Foundation) %>%
+  ggplot(aes(x = reorder(Foundation,n), y = n)) +
+  ggtitle("Overall Type of Houses Foundation on the Market\n") +
+  theme(plot.title = element_text(size = 13, face = "bold")) +
+  geom_bar(stat = 'identity') +
+  scale_x_discrete(breaks=c('BrkTil','CBlock','PConc','Slab','Stone','Wood'),
+                   labels=c("Brick & Tile", "Cinder Block", "Poured Contrete",'Slab','Stone','Wood')) +
+  geom_label(aes(label=n)) +
+  coord_flip()
+```
+
+
+2. Distribution of one Numeric feature
+```{r}
+ames %>%
+  ggplot(aes(x = SalePrice)) +
+  geom_density(aes(fill = factor(YrSold)), alpha = 0.2)
+```
+
+3. Categorical-Numeric
+```{r}
+ames %>%
+  filter(LotArea>=10000 & LotArea<=30000) %>% 
+  ggplot(aes(x = LotShape, y = LotArea)) +
+  ggtitle("House Shape Length in squarefeet\n") +
+  ylab("Lot in squarefeet length") +
+  geom_boxplot()
+```
+
+
+4. Numeric-Numeric
+```{r}
+ames %>%
+  ggplot(aes(x = GrLivArea, y = SalePrice, color = factor(OverallCond))) +
+  theme_minimal() +
+  labs(title = 'Sales price', subtitle = 'directly proportional as bigger area more pricey \n')+
+  geom_point()+
+  facet_wrap(~LotShape)
+```
